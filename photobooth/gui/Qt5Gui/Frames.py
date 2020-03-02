@@ -230,12 +230,12 @@ class WaitMessage(QtWidgets.QFrame):
 
 
 class CountdownMessage(QtWidgets.QFrame):
-    def __init__(self, time, action):
+    def __init__(self, time, action, countdown_step_size):
 
         super().__init__()
         self.setObjectName("CountdownMessage")
 
-        self._step_size = 50
+        self._step_size = countdown_step_size
         self._value = time * (1000 // self._step_size)
         self._action = action
         self._picture = None

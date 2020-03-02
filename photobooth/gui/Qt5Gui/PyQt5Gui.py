@@ -214,10 +214,12 @@ class PyQt5Gui(GuiSkeleton):
     def showCountdown(self, state):
 
         countdown_time = self._cfg.getInt("Photobooth", "countdown_time")
+        countdown_step_size = self._cfg.getInt("Gui", "countdown_step_size")
         self._setWidget(
             Frames.CountdownMessage(
                 countdown_time,
                 lambda: self._comm.send(Workers.MASTER, GuiEvent("capture")),
+                countdown_step_size
             )
         )
 
