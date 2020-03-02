@@ -147,9 +147,6 @@ def parseArgs(argv):
     # Add parameter for direct startup
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "--run", action="store_true", help="omit welcome screen and run photobooth"
-    )
-    parser.add_argument(
         "--debug", action="store_true", help="enable additional debug output"
     )
     return parser.parse_known_args()
@@ -168,7 +165,7 @@ def mainloop(comm, context):
             comm.send(Workers.MASTER, ErrorEvent("Gpio", str(e)))
 
 
-def run(argv, is_run):
+def run(argv):
 
     logging.info("Photobooth version: %s", __version__)
 
@@ -176,7 +173,7 @@ def run(argv, is_run):
     config = Config("photobooth.cfg")
 
     comm = Communicator()
-    context = Context(comm, is_run)
+    context = Context(comm, config)
 
     # Initialize processes: We use five processes here:
     # 1. Master that collects events and distributes state changes
@@ -246,7 +243,7 @@ def main(argv=None):
     while status_code in known_status_codes:
         logging.info(known_status_codes[status_code])
 
-        status_code = run(argv, parsed_args.run)
+        status_code = run(argv)
 
     logging.info("Exiting photobooth with status code %d", status_code)
 

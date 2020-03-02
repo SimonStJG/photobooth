@@ -109,6 +109,8 @@ class Camera:
         elif isinstance(state, StateMachine.GreeterState):
             self.prepareCapture()
         elif isinstance(state, StateMachine.CountdownState):
+            if self._cfg.getBool('Photobooth', 'omit_greeter'):
+                self.prepareCapture()
             self.capturePreview()
         elif isinstance(state, StateMachine.CaptureState):
             self.capturePicture(state)

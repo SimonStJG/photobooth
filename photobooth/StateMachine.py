@@ -21,12 +21,13 @@ import logging
 
 
 class Context:
-    def __init__(self, communicator, omit_welcome=False):
+    def __init__(self, communicator, config):
 
         super().__init__()
         self._comm = communicator
         self.is_running = False
-        if omit_welcome:
+        self.omit_greeter = config.getBool('Photobooth', 'omit_greeter')
+        if config.getBool('Photobooth', 'omit_welcome'):
             self.state = StartupState()
         else:
             self.state = WelcomeState()
@@ -346,7 +347,10 @@ class IdleState(State):
         if (
             isinstance(event, GuiEvent) or isinstance(event, GpioEvent)
         ) and event.name == "trigger":
-            context.state = CountdownState(1)
+            if context.omit_greeter:
+                context.state = CountdownState(1)
+            else:
+                context.state = GreeterState()
         else:
             raise TypeError('Unknown Event type "{}"'.format(event))
 
