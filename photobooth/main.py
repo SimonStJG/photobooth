@@ -203,7 +203,10 @@ def run(argv, is_run):
     return exit_code
 
 
-def main(argv):
+def main(argv=None):
+    if argv is None:
+        import sys
+        argv = sys.argv
 
     # Parse command line arguments
     parsed_args, unparsed_args = parseArgs(argv)

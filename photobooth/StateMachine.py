@@ -354,7 +354,7 @@ class IdleState(State):
 
         if ((isinstance(event, GuiEvent) or isinstance(event, GpioEvent)) and
            event.name == 'trigger'):
-            context.state = GreeterState()
+            context.state = CountdownState(1)
         else:
             raise TypeError('Unknown Event type "{}"'.format(event))
 
