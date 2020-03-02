@@ -23,7 +23,6 @@ import os
 
 
 class CameraInterface:
-
     def __init__(self):
 
         self.hasPreview = False
@@ -51,7 +50,7 @@ class CameraInterface:
     def hasPreview(self, value):
 
         if not isinstance(value, bool):
-            raise ValueError('Expected bool')
+            raise ValueError("Expected bool")
 
         self._has_preview = value
 
@@ -64,7 +63,7 @@ class CameraInterface:
     def hasIdle(self, value):
 
         if not isinstance(value, bool):
-            raise ValueError('Expected bool')
+            raise ValueError("Expected bool")
 
         self._has_idle = value
 
@@ -82,14 +81,14 @@ class CameraInterface:
     def setIdle(self):
 
         if not self.hasIdle:
-            raise RuntimeError('Camera does not have idle functionality')
+            raise RuntimeError("Camera does not have idle functionality")
 
         raise NotImplementedError()
 
     def getPreview(self):
 
         if not self.hasPreview:
-            raise RuntimeError('Camera does not have preview functionality')
+            raise RuntimeError("Camera does not have preview functionality")
 
         raise NotImplementedError()
 
@@ -100,13 +99,12 @@ class CameraInterface:
     def _initConfig(self):
 
         self._cfg = configparser.ConfigParser(interpolation=None)
-        filename = os.path.join(os.path.dirname(__file__), 'models',
-                                'defaults.cfg')
+        filename = os.path.join(os.path.dirname(__file__), "models", "defaults.cfg")
         self._cfg.read(filename)
 
     def loadConfig(self, model):
 
-        name = ''.join(c for c in model.lower() if c.isalnum()) + '.cfg'
-        filename = os.path.join(os.path.dirname(__file__), 'models', name)
+        name = "".join(c for c in model.lower() if c.isalnum()) + ".cfg"
+        filename = os.path.join(os.path.dirname(__file__), "models", name)
         logging.info('Loading camera config "{}"'.format(name))
         self._cfg.read(filename)

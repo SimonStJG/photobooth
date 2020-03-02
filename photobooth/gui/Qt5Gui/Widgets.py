@@ -68,14 +68,15 @@ class SpinningWaitClock(QtWidgets.QWidget):
 
         for dot in range(dots):
             distance = (pos - dot) % dots
-            offset = (180 / dots * math.cos(2 * math.pi * dot / dots) - 20,
-                      180 / dots * math.sin(2 * math.pi * dot / dots) - 20)
+            offset = (
+                180 / dots * math.cos(2 * math.pi * dot / dots) - 20,
+                180 / dots * math.sin(2 * math.pi * dot / dots) - 20,
+            )
 
             color = (distance + 1) / (dots + 1) * 255
             painter.setBrush(QtGui.QBrush(QtGui.QColor(color, color, color)))
 
-            painter.drawEllipse(center[0] + offset[0], center[1] + offset[1],
-                                15, 15)
+            painter.drawEllipse(center[0] + offset[0], center[1] + offset[1], 15, 15)
 
         painter.end()
 
@@ -120,14 +121,19 @@ class RoundProgressBar(QtWidgets.QWidget):
         color.setAlpha(100)
         brush = self.palette().base()
         brush.setColor(color)
-        painter.setPen(QtGui.QPen(self.palette().base().color(),
-                                  self._outline_pen_width))
+        painter.setPen(
+            QtGui.QPen(self.palette().base().color(), self._outline_pen_width)
+        )
         painter.setBrush(brush)
 
-        painter.drawEllipse(base_rect.adjusted(self._outline_pen_width // 2,
-                                               self._outline_pen_width // 2,
-                                               -self._outline_pen_width // 2,
-                                               -self._outline_pen_width // 2))
+        painter.drawEllipse(
+            base_rect.adjusted(
+                self._outline_pen_width // 2,
+                self._outline_pen_width // 2,
+                -self._outline_pen_width // 2,
+                -self._outline_pen_width // 2,
+            )
+        )
 
     def _drawCircle(self, painter, base_rect):
 
@@ -136,18 +142,22 @@ class RoundProgressBar(QtWidgets.QWidget):
 
         arc_length = 360 / (self._end - self._begin) * self.value
 
-        painter.setPen(QtGui.QPen(self.palette().text().color(),
-                                  self._data_pen_width))
+        painter.setPen(QtGui.QPen(self.palette().text().color(), self._data_pen_width))
         painter.setBrush(Qt.Qt.NoBrush)
-        painter.drawArc(base_rect.adjusted(self._outline_pen_width // 2,
-                                           self._outline_pen_width // 2,
-                                           -self._outline_pen_width // 2,
-                                           -self._outline_pen_width // 2),
-                        self._null_position * 16, -arc_length * 16)
+        painter.drawArc(
+            base_rect.adjusted(
+                self._outline_pen_width // 2,
+                self._outline_pen_width // 2,
+                -self._outline_pen_width // 2,
+                -self._outline_pen_width // 2,
+            ),
+            self._null_position * 16,
+            -arc_length * 16,
+        )
 
     def _drawText(self, painter, inner_rect, inner_radius):
 
-        text = '{}'.format(math.ceil(self.value))
+        text = "{}".format(math.ceil(self.value))
 
         f = self.font()
         f.setPixelSize(inner_radius * 0.8 / len(text))
@@ -181,11 +191,10 @@ class RoundProgressBar(QtWidgets.QWidget):
 
 
 class TransparentOverlay(QtWidgets.QWidget):
-
     def __init__(self, parent, timeout=None, timeout_handle=None):
 
         super().__init__(parent)
-        self.setObjectName('TransparentOverlay')
+        self.setObjectName("TransparentOverlay")
 
         rect = parent.rect()
         rect.adjust(50, 50, -50, -50)
@@ -202,8 +211,7 @@ class TransparentOverlay(QtWidgets.QWidget):
         opt = QtWidgets.QStyleOption()
         opt.initFrom(self)
         painter = QtGui.QPainter(self)
-        self.style().drawPrimitive(QtWidgets.QStyle.PE_Widget, opt, painter,
-                                   self)
+        self.style().drawPrimitive(QtWidgets.QStyle.PE_Widget, opt, painter, self)
         painter.end()
 
     def timerEvent(self, event):

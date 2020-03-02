@@ -22,7 +22,6 @@ from ..util import lookup_and_import
 
 
 class GuiPostprocessor:
-
     def __init__(self, config):
 
         super().__init__()
@@ -30,17 +29,17 @@ class GuiPostprocessor:
         self._get_task_list = []
         self._do_task_list = []
 
-        if config.getBool('Printer', 'enable'):
-            module = config.get('Printer', 'module')
-            paper_size = (config.getInt('Printer', 'width'),
-                          config.getInt('Printer', 'height'))
-            pdf = config.getBool('Printer', 'pdf')
-            if config.getBool('Printer', 'confirmation'):
-                self._get_task_list.append(
-                    PrintPostprocess(module, paper_size, pdf))
+        if config.getBool("Printer", "enable"):
+            module = config.get("Printer", "module")
+            paper_size = (
+                config.getInt("Printer", "width"),
+                config.getInt("Printer", "height"),
+            )
+            pdf = config.getBool("Printer", "pdf")
+            if config.getBool("Printer", "confirmation"):
+                self._get_task_list.append(PrintPostprocess(module, paper_size, pdf))
             else:
-                self._do_task_list.append(
-                    PrintPostprocess(module, paper_size, pdf))
+                self._do_task_list.append(PrintPostprocess(module, paper_size, pdf))
 
     def get(self, picture):
 
@@ -53,7 +52,6 @@ class GuiPostprocessor:
 
 
 class PostprocessTask:
-
     def __init__(self):
 
         super().__init__()
@@ -64,7 +62,6 @@ class PostprocessTask:
 
 
 class PostprocessItem:
-
     def __init__(self, label, action):
 
         super().__init__()
@@ -80,7 +77,7 @@ class PostprocessItem:
     def label(self, label):
 
         if not isinstance(label, str):
-            raise TypeError('Label must be a string')
+            raise TypeError("Label must be a string")
 
         self._label = label
 
@@ -93,20 +90,19 @@ class PostprocessItem:
     def action(self, action):
 
         if not callable(action):
-            raise TypeError('Action must be callable')
+            raise TypeError("Action must be callable")
 
         self._action = action
 
 
 class PrintPostprocess(PostprocessTask):
-
     def __init__(self, printer_module, paper_size, is_pdf, **kwargs):
 
         super().__init__(**kwargs)
 
-        Printer = lookup_and_import(printer.modules, printer_module, 'printer')
+        Printer = lookup_and_import(printer.modules, printer_module, "printer")
         self._printer = Printer(paper_size, is_pdf)
 
     def get(self, picture):
 
-        return PostprocessItem('Print', lambda: self._printer.print(picture))
+        return PostprocessItem("Print", lambda: self._printer.print(picture))

@@ -28,17 +28,16 @@ from ..Threading import Workers
 
 # Available camera modules as tuples of (config name, module name, class name)
 modules = (
-    ('python-gphoto2', 'CameraGphoto2', 'CameraGphoto2'),
-    ('gphoto2-cffi', 'CameraGphoto2Cffi', 'CameraGphoto2Cffi'),
-    ('gphoto2-commandline', 'CameraGphoto2CommandLine',
-     'CameraGphoto2CommandLine'),
-    ('opencv', 'CameraOpenCV', 'CameraOpenCV'),
-    ('picamera', 'CameraPicamera', 'CameraPicamera'),
-    ('dummy', 'CameraDummy', 'CameraDummy'))
+    ("python-gphoto2", "CameraGphoto2", "CameraGphoto2"),
+    ("gphoto2-cffi", "CameraGphoto2Cffi", "CameraGphoto2Cffi"),
+    ("gphoto2-commandline", "CameraGphoto2CommandLine", "CameraGphoto2CommandLine"),
+    ("opencv", "CameraOpenCV", "CameraOpenCV"),
+    ("picamera", "CameraPicamera", "CameraPicamera"),
+    ("dummy", "CameraDummy", "CameraDummy"),
+)
 
 
 class Camera:
-
     def __init__(self, config, comm, CameraModule):
 
         super().__init__()
@@ -50,19 +49,26 @@ class Camera:
         self._cap = None
         self._pic_dims = None
 
-        self._is_preview = self._cfg.getBool('Photobooth', 'show_preview')
-        self._is_keep_pictures = self._cfg.getBool('Storage', 'keep_pictures')
+        self._is_preview = self._cfg.getBool("Photobooth", "show_preview")
+        self._is_keep_pictures = self._cfg.getBool("Storage", "keep_pictures")
 
-        rot_vals = {0: None, 90: Image.ROTATE_90, 180: Image.ROTATE_180,
-                    270: Image.ROTATE_270}
-        self._rotation = rot_vals[self._cfg.getInt('Camera', 'rotation')]
+        rot_vals = {
+            0: None,
+            90: Image.ROTATE_90,
+            180: Image.ROTATE_180,
+            270: Image.ROTATE_270,
+        }
+        self._rotation = rot_vals[self._cfg.getInt("Camera", "rotation")]
 
     def startup(self):
 
         self._cap = self._cam()
 
-        logging.info('Using camera {} preview functionality'.format(
-            'with' if self._is_preview else 'without'))
+        logging.info(
+            "Using camera {} preview functionality".format(
+                "with" if self._is_preview else "without"
+            )
+        )
 
         test_picture = self._cap.getPicture()
         if self._rotation is not None:
@@ -71,17 +77,18 @@ class Camera:
         self._pic_dims = PictureDimensions(self._cfg, test_picture.size)
         self._is_preview = self._is_preview and self._cap.hasPreview
 
-        background = self._cfg.get('Picture', 'background')
+        background = self._cfg.get("Picture", "background")
         if len(background) > 0:
             logging.info('Using background "{}"'.format(background))
             bg_picture = Image.open(background)
             self._template = bg_picture.resize(self._pic_dims.outputSize)
         else:
-            self._template = Image.new('RGB', self._pic_dims.outputSize,
-                                       (255, 255, 255))
+            self._template = Image.new(
+                "RGB", self._pic_dims.outputSize, (255, 255, 255)
+            )
 
         self.setIdle()
-        self._comm.send(Workers.MASTER, StateMachine.CameraEvent('ready'))
+        self._comm.send(Workers.MASTER, StateMachine.CameraEvent("ready"))
 
     def teardown(self, state):
 
@@ -134,9 +141,10 @@ class Camera:
                 picture = picture.resize(self._pic_dims.previewSize)
                 picture = ImageOps.mirror(picture)
                 byte_data = BytesIO()
-                picture.save(byte_data, format='jpeg')
-                self._comm.send(Workers.GUI,
-                                StateMachine.CameraEvent('preview', byte_data))
+                picture.save(byte_data, format="jpeg")
+                self._comm.send(
+                    Workers.GUI, StateMachine.CameraEvent("preview", byte_data)
+                )
 
     def capturePicture(self, state):
 
@@ -145,20 +153,19 @@ class Camera:
         if self._rotation is not None:
             picture = picture.transpose(self._rotation)
         byte_data = BytesIO()
-        picture.save(byte_data, format='jpeg')
+        picture.save(byte_data, format="jpeg")
         self._pictures.append(byte_data)
         self.setActive()
 
         if self._is_keep_pictures:
-            self._comm.send(Workers.WORKER,
-                            StateMachine.CameraEvent('capture', byte_data))
+            self._comm.send(
+                Workers.WORKER, StateMachine.CameraEvent("capture", byte_data)
+            )
 
         if state.num_picture < self._pic_dims.totalNumPictures:
-            self._comm.send(Workers.MASTER,
-                            StateMachine.CameraEvent('countdown'))
+            self._comm.send(Workers.MASTER, StateMachine.CameraEvent("countdown"))
         else:
-            self._comm.send(Workers.MASTER,
-                            StateMachine.CameraEvent('assemble'))
+            self._comm.send(Workers.MASTER, StateMachine.CameraEvent("assemble"))
 
     def assemblePicture(self):
 
@@ -171,7 +178,6 @@ class Camera:
             picture.paste(resized, self._pic_dims.thumbnailOffset[i])
 
         byte_data = BytesIO()
-        picture.save(byte_data, format='jpeg')
-        self._comm.send(Workers.MASTER,
-                        StateMachine.CameraEvent('review', byte_data))
+        picture.save(byte_data, format="jpeg")
+        self._comm.send(Workers.MASTER, StateMachine.CameraEvent("review", byte_data))
         self._pictures = []

@@ -23,7 +23,6 @@ from PyQt5 import QtCore
 
 
 class Worker(QtCore.QThread):
-
     def __init__(self, comm):
 
         super().__init__()

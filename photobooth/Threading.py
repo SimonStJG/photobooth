@@ -22,7 +22,6 @@ from multiprocessing import Queue
 
 
 class Communicator:
-
     def __init__(self):
 
         super().__init__()
@@ -37,28 +36,28 @@ class Communicator:
     def send(self, target, message):
 
         if not isinstance(target, Workers):
-            raise TypeError('target must be a member of Workers')
+            raise TypeError("target must be a member of Workers")
 
         self._queues[target].put(message)
 
     def recv(self, worker, block=True):
 
         if not isinstance(worker, Workers):
-            raise TypeError('worker must be a member of Workers')
+            raise TypeError("worker must be a member of Workers")
 
         return self._queues[worker].get(block)
 
     def iter(self, worker):
 
         if not isinstance(worker, Workers):
-            raise TypeError('worker must be a member of Workers')
+            raise TypeError("worker must be a member of Workers")
 
         return iter(self._queues[worker].get, None)
 
     def empty(self, worker):
 
         if not isinstance(worker, Workers):
-            raise TypeError('worker must be a member of Workers')
+            raise TypeError("worker must be a member of Workers")
 
         return self._queues[worker].empty()
 

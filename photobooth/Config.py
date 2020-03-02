@@ -23,7 +23,6 @@ import os
 
 
 class Config:
-
     def __init__(self, filename):
 
         self._filename = filename
@@ -44,7 +43,7 @@ class Config:
 
     def defaults(self):
 
-        filename = os.path.join(os.path.dirname(__file__), 'defaults.cfg')
+        filename = os.path.join(os.path.dirname(__file__), "defaults.cfg")
         logging.info('Reading config file "%s"', filename)
         self._cfg.read(filename)
 
@@ -56,7 +55,7 @@ class Config:
     def write(self):
 
         logging.info('Writing config file "%s"', self._filename)
-        with open(self._filename, 'w') as configfile:
+        with open(self._filename, "w") as configfile:
             self._cfg.write(configfile)
 
     def get(self, section, key):
@@ -78,7 +77,7 @@ class Config:
     def getIntList(self, section, key):
 
         if len(self._cfg[section][key].strip()) > 0:
-            return [int(i) for i in self._cfg[section][key].split(',')]
+            return [int(i) for i in self._cfg[section][key].split(",")]
         else:
             return []
 

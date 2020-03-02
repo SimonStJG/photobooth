@@ -21,7 +21,6 @@ import logging
 
 
 class Context:
-
     def __init__(self, communicator, omit_welcome=False):
 
         super().__init__()
@@ -41,7 +40,7 @@ class Context:
     def is_running(self, running):
 
         if not isinstance(running, bool):
-            raise TypeError('is_running must be a bool')
+            raise TypeError("is_running must be a bool")
 
         self._is_running = running
 
@@ -54,7 +53,7 @@ class Context:
     def state(self, new_state):
 
         if not isinstance(new_state, State):
-            raise TypeError('state must implement State')
+            raise TypeError("state must implement State")
 
         logging.debug('Context: New state is "{}"'.format(new_state))
 
@@ -64,13 +63,14 @@ class Context:
     def handleEvent(self, event):
 
         if not isinstance(event, Event):
-            raise TypeError('event must implement Event')
+            raise TypeError("event must implement Event")
 
         logging.debug('Context: Handling event "{}"'.format(event))
 
         if isinstance(event, ErrorEvent):
-            self.state = ErrorState(event.origin, event.message, self.state,
-                                    self.is_running)
+            self.state = ErrorState(
+                event.origin, event.message, self.state, self.is_running
+            )
         elif isinstance(event, TeardownEvent):
             self.is_running = False
             self.state = TeardownState(event.target)
@@ -85,7 +85,6 @@ class Context:
 
 
 class Event:
-
     def __init__(self, name):
 
         super().__init__()
@@ -104,22 +103,21 @@ class Event:
     def name(self, name):
 
         if not isinstance(name, str):
-            raise TypeError('name must be a str')
+            raise TypeError("name must be a str")
 
         self._name = name
 
 
 class ErrorEvent(Event):
-
     def __init__(self, origin, message):
 
-        super().__init__('Error')
+        super().__init__("Error")
         self.origin = origin
         self.message = message
 
     def __str__(self):
 
-        return self.origin + ': ' + self.message
+        return self.origin + ": " + self.message
 
     @property
     def origin(self):
@@ -130,7 +128,7 @@ class ErrorEvent(Event):
     def origin(self, origin):
 
         if not isinstance(origin, str):
-            raise TypeError('origin must be a string')
+            raise TypeError("origin must be a string")
 
         self._origin = origin
 
@@ -143,7 +141,7 @@ class ErrorEvent(Event):
     def message(self, message):
 
         if not isinstance(message, str):
-            raise TypeError('message must be a string')
+            raise TypeError("message must be a string")
 
         self._message = message
 
@@ -157,7 +155,7 @@ class TeardownEvent(Event):
     def __init__(self, target):
 
         self._target = target
-        super().__init__('Teardown({})'.format(target))
+        super().__init__("Teardown({})".format(target))
 
     @property
     def target(self):
@@ -176,7 +174,6 @@ class GpioEvent(Event):
 
 
 class CameraEvent(Event):
-
     def __init__(self, name, picture=None):
 
         super().__init__(name)
@@ -194,7 +191,6 @@ class WorkerEvent(Event):
 
 
 class State:
-
     def __init__(self):
 
         super().__init__()
@@ -214,7 +210,6 @@ class State:
 
 
 class ErrorState(State):
-
     def __init__(self, origin, message, old_state, is_running):
 
         self.origin = origin
@@ -232,7 +227,7 @@ class ErrorState(State):
     def origin(self, origin):
 
         if not isinstance(origin, str):
-            raise TypeError('origin must be a string')
+            raise TypeError("origin must be a string")
 
         self._origin = origin
 
@@ -245,7 +240,7 @@ class ErrorState(State):
     def message(self, message):
 
         if not isinstance(message, str):
-            raise TypeError('message must be a string')
+            raise TypeError("message must be a string")
 
         self._message = message
 
@@ -258,7 +253,7 @@ class ErrorState(State):
     def old_state(self, old_state):
 
         if not isinstance(old_state, State):
-            raise TypeError('old_state must be derived from State')
+            raise TypeError("old_state must be derived from State")
 
         self._old_state = old_state
 
@@ -271,16 +266,16 @@ class ErrorState(State):
     def is_running(self, running):
 
         if not isinstance(running, bool):
-            raise TypeError('is_running must be a bool')
+            raise TypeError("is_running must be a bool")
 
         self._is_running = running
 
     def handleEvent(self, event, context):
 
-        if isinstance(event, GuiEvent) and event.name == 'retry':
+        if isinstance(event, GuiEvent) and event.name == "retry":
             context.state = self.old_state
             context.state.update()
-        elif isinstance(event, GuiEvent) and event.name == 'abort':
+        elif isinstance(event, GuiEvent) and event.name == "abort":
             if self.is_running:
                 context.state = IdleState()
             else:
@@ -290,7 +285,6 @@ class ErrorState(State):
 
 
 class TeardownState(State):
-
     def __init__(self, target):
 
         super().__init__()
@@ -304,7 +298,7 @@ class TeardownState(State):
     def handleEvent(self, event, context):
 
         if self._target == TeardownEvent.WELCOME:
-            if isinstance(event, GuiEvent) and event.name == 'welcome':
+            if isinstance(event, GuiEvent) and event.name == "welcome":
                 context.state = WelcomeState()
             else:
                 raise ValueError('Unknown GuiEvent "{}"'.format(event.name))
@@ -313,7 +307,6 @@ class TeardownState(State):
 
 
 class WelcomeState(State):
-
     def __init__(self):
 
         super().__init__()
@@ -321,23 +314,22 @@ class WelcomeState(State):
     def handleEvent(self, event, context):
 
         if isinstance(event, GuiEvent):
-            if event.name == 'start':
+            if event.name == "start":
                 context.state = StartupState()
-            elif event.name == 'exit':
+            elif event.name == "exit":
                 context.state = TeardownState(TeardownEvent.EXIT)
         else:
             raise TypeError('Unknown Event type "{}"'.format(event))
 
 
 class StartupState(State):
-
     def __init__(self):
 
         super().__init__()
 
     def handleEvent(self, event, context):
 
-        if isinstance(event, CameraEvent) and event.name == 'ready':
+        if isinstance(event, CameraEvent) and event.name == "ready":
             context.is_running = True
             context.state = IdleState()
         else:
@@ -345,37 +337,36 @@ class StartupState(State):
 
 
 class IdleState(State):
-
     def __init__(self):
 
         super().__init__()
 
     def handleEvent(self, event, context):
 
-        if ((isinstance(event, GuiEvent) or isinstance(event, GpioEvent)) and
-           event.name == 'trigger'):
+        if (
+            isinstance(event, GuiEvent) or isinstance(event, GpioEvent)
+        ) and event.name == "trigger":
             context.state = CountdownState(1)
         else:
             raise TypeError('Unknown Event type "{}"'.format(event))
 
 
 class GreeterState(State):
-
     def __init__(self):
 
         super().__init__()
 
     def handleEvent(self, event, context):
 
-        if ((isinstance(event, GuiEvent) or isinstance(event, GpioEvent)) and
-           event.name == 'countdown'):
+        if (
+            isinstance(event, GuiEvent) or isinstance(event, GpioEvent)
+        ) and event.name == "countdown":
             context.state = CountdownState(1)
         else:
             raise TypeError('Unknown Event type "{}"'.format(event))
 
 
 class CountdownState(State):
-
     def __init__(self, num_picture):
 
         super().__init__()
@@ -389,16 +380,15 @@ class CountdownState(State):
 
     def handleEvent(self, event, context):
 
-        if isinstance(event, GuiEvent) and event.name == 'countdown':
+        if isinstance(event, GuiEvent) and event.name == "countdown":
             pass
-        elif isinstance(event, GuiEvent) and event.name == 'capture':
+        elif isinstance(event, GuiEvent) and event.name == "capture":
             context.state = CaptureState(self.num_picture)
         else:
             raise TypeError('Unknown Event type "{}"'.format(event))
 
 
 class CaptureState(State):
-
     def __init__(self, num_picture):
 
         super().__init__()
@@ -412,30 +402,28 @@ class CaptureState(State):
 
     def handleEvent(self, event, context):
 
-        if isinstance(event, CameraEvent) and event.name == 'countdown':
+        if isinstance(event, CameraEvent) and event.name == "countdown":
             context.state = CountdownState(self.num_picture + 1)
-        elif isinstance(event, CameraEvent) and event.name == 'assemble':
+        elif isinstance(event, CameraEvent) and event.name == "assemble":
             context.state = AssembleState()
         else:
             raise TypeError('Unknown Event type "{}"'.format(event))
 
 
 class AssembleState(State):
-
     def __init__(self):
 
         super().__init__()
 
     def handleEvent(self, event, context):
 
-        if isinstance(event, CameraEvent) and event.name == 'review':
+        if isinstance(event, CameraEvent) and event.name == "review":
             context.state = ReviewState(event.picture)
         else:
             raise TypeError('Unknown Event type "{}"'.format(event))
 
 
 class ReviewState(State):
-
     def __init__(self, picture):
 
         super().__init__()
@@ -448,22 +436,22 @@ class ReviewState(State):
 
     def handleEvent(self, event, context):
 
-        if isinstance(event, GuiEvent) and event.name == 'postprocess':
+        if isinstance(event, GuiEvent) and event.name == "postprocess":
             context.state = PostprocessState()
         else:
             raise TypeError('Unknown Event type "{}"'.format(event))
 
 
 class PostprocessState(State):
-
     def __init__(self):
 
         super().__init__()
 
     def handleEvent(self, event, context):
 
-        if ((isinstance(event, GuiEvent) or isinstance(event, GpioEvent)) and
-           event.name == 'idle'):
+        if (
+            isinstance(event, GuiEvent) or isinstance(event, GpioEvent)
+        ) and event.name == "idle":
             context.state = IdleState()
         else:
             raise TypeError('Unknown Event type "{}"'.format(event))

@@ -24,7 +24,6 @@ from .WorkerTask import WorkerTask
 
 
 class PictureSaver(WorkerTask):
-
     def __init__(self, basename):
 
         super().__init__()
@@ -36,6 +35,6 @@ class PictureSaver(WorkerTask):
 
     def do(self, picture, filename):
 
-        logging.info('Saving picture as %s', filename)
-        with open(filename, 'wb') as f:
+        logging.info("Saving picture as %s", filename)
+        with open(filename, "wb") as f:
             f.write(picture.getbuffer())

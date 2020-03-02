@@ -31,20 +31,22 @@ from .PictureUploadWebdav import PictureUploadWebdav
 
 
 class Worker:
-
     def __init__(self, config, comm):
 
         self._comm = comm
 
         # Picture list for assembled pictures
-        path = os.path.join(config.get('Storage', 'basedir'),
-                            config.get('Storage', 'basename'))
+        path = os.path.join(
+            config.get("Storage", "basedir"), config.get("Storage", "basename")
+        )
         basename = strftime(path, localtime())
         self._pic_list = PictureList(basename)
 
         # Picture list for individual shots
-        path = os.path.join(config.get('Storage', 'basedir'),
-                            config.get('Storage', 'basename') + '_shot_')
+        path = os.path.join(
+            config.get("Storage", "basedir"),
+            config.get("Storage", "basename") + "_shot_",
+        )
         basename = strftime(path, localtime())
         self._shot_list = PictureList(basename)
 
@@ -59,11 +61,11 @@ class Worker:
         self._postprocess_tasks.append(PictureSaver(self._pic_list.basename))
 
         # PictureMailer for assembled pictures
-        if config.getBool('Mailer', 'enable'):
+        if config.getBool("Mailer", "enable"):
             self._postprocess_tasks.append(PictureMailer(config))
 
         # PictureUploadWebdav to upload pictures to a webdav storage
-        if config.getBool('UploadWebdav', 'enable'):
+        if config.getBool("UploadWebdav", "enable"):
             self._postprocess_tasks.append(PictureUploadWebdav(config))
 
     def initPictureTasks(self, config):
@@ -87,7 +89,7 @@ class Worker:
         elif isinstance(state, StateMachine.ReviewState):
             self.doPostprocessTasks(state.picture, self._pic_list.getNext())
         elif isinstance(state, StateMachine.CameraEvent):
-            if state.name == 'capture':
+            if state.name == "capture":
                 self.doPictureTasks(state.picture, self._shot_list.getNext())
             else:
                 raise ValueError('Unknown CameraEvent "{}"'.format(state))

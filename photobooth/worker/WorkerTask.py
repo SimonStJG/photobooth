@@ -19,7 +19,6 @@
 
 
 class WorkerTask:
-
     def __init__(self, **kwargs):
 
         assert not kwargs

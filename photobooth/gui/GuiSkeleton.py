@@ -21,7 +21,6 @@ from .. import StateMachine
 
 
 class GuiSkeleton:
-
     def __init__(self, communicator):
 
         super().__init__()

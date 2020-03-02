@@ -39,7 +39,6 @@ from . import Worker
 
 
 class PyQt5Gui(GuiSkeleton):
-
     def __init__(self, argv, config, comm):
 
         super().__init__(comm)
@@ -64,9 +63,9 @@ class PyQt5Gui(GuiSkeleton):
         self._disableTrigger()
 
         # Load stylesheet
-        style = self._cfg.get('Gui', 'style')
+        style = self._cfg.get("Gui", "style")
         filename = next((file for name, file in styles if name == style))
-        with open(os.path.join(os.path.dirname(__file__), filename), 'r') as f:
+        with open(os.path.join(os.path.dirname(__file__), filename), "r") as f:
             stylesheet = f.read()
 
         # Create application and main window
@@ -75,8 +74,10 @@ class PyQt5Gui(GuiSkeleton):
         self._gui = PyQt5MainWindow(self._cfg, self._handleKeypressEvent)
 
         # Load additional fonts
-        fonts = ['photobooth/gui/Qt5Gui/fonts/AmaticSC-Regular.ttf',
-                 'photobooth/gui/Qt5Gui/fonts/AmaticSC-Bold.ttf']
+        fonts = [
+            "photobooth/gui/Qt5Gui/fonts/AmaticSC-Regular.ttf",
+            "photobooth/gui/Qt5Gui/fonts/AmaticSC-Bold.ttf",
+        ]
         self._fonts = QtGui.QFontDatabase()
         for font in fonts:
             self._fonts.addApplicationFont(font)
@@ -122,38 +123,46 @@ class PyQt5Gui(GuiSkeleton):
     def teardown(self, state):
 
         if state.target == TeardownEvent.WELCOME:
-            self._comm.send(Workers.MASTER, GuiEvent('welcome'))
+            self._comm.send(Workers.MASTER, GuiEvent("welcome"))
         elif state.target in (TeardownEvent.EXIT, TeardownEvent.RESTART):
             self._worker.put(None)
             self._app.exit(0)
 
     def showError(self, state):
 
-        logging.error('%s: %s', state.origin, state.message)
+        logging.error("%s: %s", state.origin, state.message)
 
-        err_msg = self._cfg.get('Photobooth', 'overwrite_error_message')
+        err_msg = self._cfg.get("Photobooth", "overwrite_error_message")
         if len(err_msg) > 0:
             message = err_msg
         else:
-            message = 'Error: ' + state.message
+            message = "Error: " + state.message
 
         reply = QtWidgets.QMessageBox.critical(
-            self._gui, state.origin, message,
+            self._gui,
+            state.origin,
+            message,
             QtWidgets.QMessageBox.Retry | QtWidgets.QMessageBox.Cancel,
-            QtWidgets.QMessageBox.Cancel)
+            QtWidgets.QMessageBox.Cancel,
+        )
 
         if reply == QtWidgets.QMessageBox.Retry:
-            self._comm.send(Workers.MASTER, GuiEvent('retry'))
+            self._comm.send(Workers.MASTER, GuiEvent("retry"))
         else:
-            self._comm.send(Workers.MASTER, GuiEvent('abort'))
+            self._comm.send(Workers.MASTER, GuiEvent("abort"))
 
     def showWelcome(self, state):
 
         self._disableTrigger()
         self._disableEscape()
-        self._setWidget(Frames.Welcome(
-            lambda: self._comm.send(Workers.MASTER, GuiEvent('start')),
-            self._showSetDateTime, self._showSettings, self.close))
+        self._setWidget(
+            Frames.Welcome(
+                lambda: self._comm.send(Workers.MASTER, GuiEvent("start")),
+                self._showSetDateTime,
+                self._showSettings,
+                self.close,
+            )
+        )
         if QtWidgets.QApplication.overrideCursor() != 0:
             QtWidgets.QApplication.restoreOverrideCursor()
 
@@ -161,41 +170,56 @@ class PyQt5Gui(GuiSkeleton):
 
         self._disableTrigger()
         self._enableEscape()
-        self._setWidget(Frames.WaitMessage(_('Starting the photobooth...')))
-        if self._cfg.getBool('Gui', 'hide_cursor'):
+        self._setWidget(Frames.WaitMessage(_("Starting the photobooth...")))
+        if self._cfg.getBool("Gui", "hide_cursor"):
             QtWidgets.QApplication.setOverrideCursor(QtCore.Qt.BlankCursor)
 
     def showIdle(self, state):
 
         self._enableEscape()
         self._enableTrigger()
-        self._setWidget(Frames.IdleMessage(
-            lambda: self._comm.send(Workers.MASTER, GuiEvent('trigger'))))
+        self._setWidget(
+            Frames.IdleMessage(
+                lambda: self._comm.send(Workers.MASTER, GuiEvent("trigger"))
+            )
+        )
 
     def showGreeter(self, state):
 
         self._enableEscape()
         self._disableTrigger()
 
-        num_pic = (self._cfg.getInt('Picture', 'num_x'),
-                   self._cfg.getInt('Picture', 'num_y'))
-        skip = [i for i in self._cfg.getIntList('Picture', 'skip')
-                if 1 <= i and i <= num_pic[0] * num_pic[1]]
-        greeter_time = self._cfg.getInt('Photobooth', 'greeter_time') * 1000
+        num_pic = (
+            self._cfg.getInt("Picture", "num_x"),
+            self._cfg.getInt("Picture", "num_y"),
+        )
+        skip = [
+            i
+            for i in self._cfg.getIntList("Picture", "skip")
+            if 1 <= i and i <= num_pic[0] * num_pic[1]
+        ]
+        greeter_time = self._cfg.getInt("Photobooth", "greeter_time") * 1000
 
-        self._setWidget(Frames.GreeterMessage(
-            *num_pic, skip,
-            lambda: self._comm.send(Workers.MASTER, GuiEvent('countdown'))))
+        self._setWidget(
+            Frames.GreeterMessage(
+                *num_pic,
+                skip,
+                lambda: self._comm.send(Workers.MASTER, GuiEvent("countdown"))
+            )
+        )
         QtCore.QTimer.singleShot(
-            greeter_time,
-            lambda: self._comm.send(Workers.MASTER, GuiEvent('countdown')))
+            greeter_time, lambda: self._comm.send(Workers.MASTER, GuiEvent("countdown"))
+        )
 
     def showCountdown(self, state):
 
-        countdown_time = self._cfg.getInt('Photobooth', 'countdown_time')
-        self._setWidget(Frames.CountdownMessage(
-            countdown_time,
-            lambda: self._comm.send(Workers.MASTER, GuiEvent('capture'))))
+        countdown_time = self._cfg.getInt("Photobooth", "countdown_time")
+        self._setWidget(
+            Frames.CountdownMessage(
+                countdown_time,
+                lambda: self._comm.send(Workers.MASTER, GuiEvent("capture")),
+            )
+        )
 
     def updateCountdown(self, event):
 
@@ -205,67 +229,83 @@ class PyQt5Gui(GuiSkeleton):
 
     def showCapture(self, state):
 
-        num_pic = (self._cfg.getInt('Picture', 'num_x'),
-                   self._cfg.getInt('Picture', 'num_y'))
-        skip = [i for i in self._cfg.getIntList('Picture', 'skip')
-                if 1 <= i and i <= num_pic[0] * num_pic[1]]
-        self._setWidget(Frames.CaptureMessage(state.num_picture, *num_pic,
-                                              skip))
+        num_pic = (
+            self._cfg.getInt("Picture", "num_x"),
+            self._cfg.getInt("Picture", "num_y"),
+        )
+        skip = [
+            i
+            for i in self._cfg.getIntList("Picture", "skip")
+            if 1 <= i and i <= num_pic[0] * num_pic[1]
+        ]
+        self._setWidget(Frames.CaptureMessage(state.num_picture, *num_pic, skip))
 
     def showAssemble(self, state):
 
-        self._setWidget(Frames.WaitMessage(_('Processing picture...')))
+        self._setWidget(Frames.WaitMessage(_("Processing picture...")))
 
     def showReview(self, state):
 
         picture = Image.open(state.picture)
         self._picture = ImageQt.ImageQt(picture)
-        review_time = self._cfg.getInt('Photobooth', 'display_time') * 1000
+        review_time = self._cfg.getInt("Photobooth", "display_time") * 1000
         self._setWidget(Frames.PictureMessage(self._picture))
         QtCore.QTimer.singleShot(
             review_time,
-            lambda: self._comm.send(Workers.MASTER, GuiEvent('postprocess')))
+            lambda: self._comm.send(Workers.MASTER, GuiEvent("postprocess")),
+        )
         self._postprocess.do(self._picture)
 
     def showPostprocess(self, state):
 
         tasks = self._postprocess.get(self._picture)
-        postproc_t = self._cfg.getInt('Photobooth', 'postprocess_time')
+        postproc_t = self._cfg.getInt("Photobooth", "postprocess_time")
 
         Frames.PostprocessMessage(
-            self._gui.centralWidget(), tasks, self._worker,
-            lambda: self._comm.send(Workers.MASTER, GuiEvent('idle')),
-            postproc_t * 1000)
+            self._gui.centralWidget(),
+            tasks,
+            self._worker,
+            lambda: self._comm.send(Workers.MASTER, GuiEvent("idle")),
+            postproc_t * 1000,
+        )
 
     def _handleKeypressEvent(self, event):
 
         if self._is_escape and event.key() == QtCore.Qt.Key_Escape:
-            self._comm.send(Workers.MASTER,
-                            TeardownEvent(TeardownEvent.WELCOME))
+            self._comm.send(Workers.MASTER, TeardownEvent(TeardownEvent.WELCOME))
         elif self._is_trigger and event.key() == QtCore.Qt.Key_Space:
-            self._comm.send(Workers.MASTER, GuiEvent('trigger'))
+            self._comm.send(Workers.MASTER, GuiEvent("trigger"))
 
     def _showSetDateTime(self):
 
         self._disableTrigger()
         self._disableEscape()
-        self._setWidget(Frames.SetDateTime(
-            self.showWelcome,
-            lambda: self._comm.send(Workers.MASTER,
-                                    TeardownEvent(TeardownEvent.RESTART))))
+        self._setWidget(
+            Frames.SetDateTime(
+                self.showWelcome,
+                lambda: self._comm.send(
+                    Workers.MASTER, TeardownEvent(TeardownEvent.RESTART)
+                ),
+            )
+        )
 
     def _showSettings(self):
 
         self._disableTrigger()
         self._disableEscape()
-        self._setWidget(Frames.Settings(
-            self._cfg, self._showSettings, self.showWelcome,
-            lambda: self._comm.send(Workers.MASTER,
-                                    TeardownEvent(TeardownEvent.RESTART))))
+        self._setWidget(
+            Frames.Settings(
+                self._cfg,
+                self._showSettings,
+                self.showWelcome,
+                lambda: self._comm.send(
+                    Workers.MASTER, TeardownEvent(TeardownEvent.RESTART)
+                ),
+            )
+        )
 
 
 class PyQt5MainWindow(QtWidgets.QMainWindow):
-
     def __init__(self, config, keypress_handler):
 
         super().__init__()
@@ -276,22 +316,25 @@ class PyQt5MainWindow(QtWidgets.QMainWindow):
 
     def _initUI(self):
 
-        self.setWindowTitle('Photobooth')
+        self.setWindowTitle("Photobooth")
 
-        if self._cfg.getBool('Gui', 'fullscreen'):
+        if self._cfg.getBool("Gui", "fullscreen"):
             self.showFullScreen()
         else:
-            self.setFixedSize(self._cfg.getInt('Gui', 'width'),
-                              self._cfg.getInt('Gui', 'height'))
+            self.setFixedSize(
+                self._cfg.getInt("Gui", "width"), self._cfg.getInt("Gui", "height")
+            )
             self.show()
 
     def closeEvent(self, e):
 
-        reply = QtWidgets.QMessageBox.question(self, _('Confirmation'),
-                                               _('Quit Photobooth?'),
-                                               QtWidgets.QMessageBox.Yes |
-                                               QtWidgets.QMessageBox.No,
-                                               QtWidgets.QMessageBox.No)
+        reply = QtWidgets.QMessageBox.question(
+            self,
+            _("Confirmation"),
+            _("Quit Photobooth?"),
+            QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No,
+            QtWidgets.QMessageBox.No,
+        )
 
         if reply == QtWidgets.QMessageBox.Yes:
             e.accept()

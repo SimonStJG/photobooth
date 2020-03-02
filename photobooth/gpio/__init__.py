@@ -26,7 +26,6 @@ from ..Threading import Workers
 
 
 class Gpio:
-
     def __init__(self, config, comm):
 
         super().__init__()
@@ -35,8 +34,8 @@ class Gpio:
         self._gpio = None
 
         self._is_trigger = False
-        self._is_enabled = config.getBool('Gpio', 'enable')
-        self._countdown_time = config.getInt('Photobooth', 'countdown_time')
+        self._is_enabled = config.getBool("Gpio", "enable")
+        self._countdown_time = config.getInt("Photobooth", "countdown_time")
 
         self.initGpio(config)
 
@@ -45,24 +44,33 @@ class Gpio:
         if self._is_enabled:
             self._gpio = Entities()
 
-            lamp_pin = config.getInt('Gpio', 'lamp_pin')
-            trigger_pin = config.getInt('Gpio', 'trigger_pin')
-            exit_pin = config.getInt('Gpio', 'exit_pin')
+            lamp_pin = config.getInt("Gpio", "lamp_pin")
+            trigger_pin = config.getInt("Gpio", "trigger_pin")
+            exit_pin = config.getInt("Gpio", "exit_pin")
 
-            rgb_pin = (config.getInt('Gpio', 'chan_r_pin'),
-                       config.getInt('Gpio', 'chan_g_pin'),
-                       config.getInt('Gpio', 'chan_b_pin'))
+            rgb_pin = (
+                config.getInt("Gpio", "chan_r_pin"),
+                config.getInt("Gpio", "chan_g_pin"),
+                config.getInt("Gpio", "chan_b_pin"),
+            )
 
-            logging.info(('GPIO enabled (lamp_pin=%d, trigger_pin=%d, '
-                         'exit_pin=%d, rgb_pins=(%d, %d, %d))'),
-                         lamp_pin, trigger_pin, exit_pin, *rgb_pin)
+            logging.info(
+                (
+                    "GPIO enabled (lamp_pin=%d, trigger_pin=%d, "
+                    "exit_pin=%d, rgb_pins=(%d, %d, %d))"
+                ),
+                lamp_pin,
+                trigger_pin,
+                exit_pin,
+                *rgb_pin
+            )
 
             self._gpio.setButton(trigger_pin, self.trigger)
             self._gpio.setButton(exit_pin, self.exit)
             self._lamp = self._gpio.setLamp(lamp_pin)
             self._rgb = self._gpio.setRgb(rgb_pin)
         else:
-            logging.info('GPIO disabled')
+            logging.info("GPIO disabled")
 
     def run(self):
 
@@ -125,8 +133,9 @@ class Gpio:
     def rgbBlink(self):
 
         if self._is_enabled:
-            self._gpio.rgbBlink(self._rgb, 0.5, 0.5, 0.1, 0.1, (1, 0, 0),
-                                (0, 0, 0), None)  # self._countdown_time)
+            self._gpio.rgbBlink(
+                self._rgb, 0.5, 0.5, 0.1, 0.1, (1, 0, 0), (0, 0, 0), None
+            )  # self._countdown_time)
             # Note: blinking forever instead of countdown_time to overcome
             # the issue of too slow preview
 
@@ -134,13 +143,14 @@ class Gpio:
 
         if self._is_trigger:
             self.disableTrigger()
-            self._comm.send(Workers.MASTER, StateMachine.GpioEvent('trigger'))
+            self._comm.send(Workers.MASTER, StateMachine.GpioEvent("trigger"))
 
     def exit(self):
 
         self._comm.send(
             Workers.MASTER,
-            StateMachine.TeardownEvent(StateMachine.TeardownEvent.WELCOME))
+            StateMachine.TeardownEvent(StateMachine.TeardownEvent.WELCOME),
+        )
 
     def showIdle(self):
 
@@ -167,7 +177,7 @@ class Gpio:
     def showCapture(self):
 
         self.rgbOn()
-        self.setRgbColor(1, 1, .9)
+        self.setRgbColor(1, 1, 0.9)
 
     def showAssemble(self):
 
@@ -175,7 +185,7 @@ class Gpio:
 
     def showReview(self):
 
-        self.setRgbColor(0, .15, 0)
+        self.setRgbColor(0, 0.15, 0)
 
     def showPostprocess(self):
 
@@ -183,12 +193,12 @@ class Gpio:
 
 
 class Entities:
-
     def __init__(self):
 
         super().__init__()
 
         import gpiozero
+
         self.LED = gpiozero.LED
         self.RGBLED = gpiozero.RGBLED
         self.Button = gpiozero.Button
@@ -212,7 +222,7 @@ class Entities:
             self._buttons.append(self.Button(bcm_pin))
             self._buttons[-1].when_pressed = handler
         except self.GPIOPinInUse:
-            logging.error('Pin {} already in use!'.format(bcm_pin))
+            logging.error("Pin {} already in use!".format(bcm_pin))
 
     def setLamp(self, bcm_pin):
 
@@ -220,7 +230,7 @@ class Entities:
             self._lamps.append(self.LED(bcm_pin))
             return len(self._lamps) - 1
         except self.GPIOPinInUse:
-            logging.error('Pin {} already in use!'.format(bcm_pin))
+            logging.error("Pin {} already in use!".format(bcm_pin))
             return None
 
     def setRgb(self, bcm_pins):
@@ -232,7 +242,7 @@ class Entities:
             self._rgb.append(led)
             return len(self._rgb) - 1
         except self.GPIOPinInUse:
-            logging.error('Some pin {} already in use!'.format(bcm_pins))
+            logging.error("Some pin {} already in use!".format(bcm_pins))
             return None
 
     def lampOn(self, index):
@@ -265,9 +275,25 @@ class Entities:
         if index is not None:
             self._rgb[index].color = color
 
-    def rgbBlink(self, index, on_time, off_time, fade_in_time, fade_out_time,
-                 on_color, off_color, count):
+    def rgbBlink(
+        self,
+        index,
+        on_time,
+        off_time,
+        fade_in_time,
+        fade_out_time,
+        on_color,
+        off_color,
+        count,
+    ):
 
         if index is not None:
-            self._rgb[index].blink(on_time, off_time, fade_in_time,
-                                   fade_out_time, on_color, off_color, count)
+            self._rgb[index].blink(
+                on_time,
+                off_time,
+                fade_in_time,
+                fade_out_time,
+                on_color,
+                off_color,
+                count,
+            )
