@@ -77,6 +77,8 @@ class PyQt5Gui(GuiSkeleton):
         fonts = [
             "photobooth/gui/Qt5Gui/fonts/AmaticSC-Regular.ttf",
             "photobooth/gui/Qt5Gui/fonts/AmaticSC-Bold.ttf",
+            "photobooth/gui/Qt5Gui/fonts/helvetica.ttf",
+            "photobooth/gui/Qt5Gui/fonts/mottertektura.ttf",
         ]
         self._fonts = QtGui.QFontDatabase()
         for font in fonts:
@@ -170,7 +172,7 @@ class PyQt5Gui(GuiSkeleton):
 
         self._disableTrigger()
         self._enableEscape()
-        self._setWidget(Frames.WaitMessage(_("Starting the photobooth...")))
+        self._setWidget(Frames.WaitMessage(_("Starting up...")))
         if self._cfg.getBool("Gui", "hide_cursor"):
             QtWidgets.QApplication.setOverrideCursor(QtCore.Qt.BlankCursor)
 
@@ -244,7 +246,7 @@ class PyQt5Gui(GuiSkeleton):
 
     def showAssemble(self, state):
 
-        self._setWidget(Frames.WaitMessage(_("Processing picture...")))
+        self._setWidget(Frames.WaitMessage(_("Reticulating Splines...")))
 
     def showReview(self, state):
 

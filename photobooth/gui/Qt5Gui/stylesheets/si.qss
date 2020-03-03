@@ -3,7 +3,7 @@
 QWidget {
     background-color: transparent;
     color: #eeeeee;
-    font-family: Helvetica, sans-serif;
+    font-family: mottertektura, sans-serif;
     font-size: 40px;
 }
 
@@ -30,26 +30,20 @@ QPushButton:pressed {
 /* Idle Screen */
 
 QFrame#IdleMessage {
-    background-image: url(photobooth/gui/Qt5Gui/images/arrow-1024x600.png);
+    background-image: url(photobooth/gui/Qt5Gui/images/jungle-background.jpg);
     background-repeat: no-repeat;
-    padding: 80px 400px 120px 80px;
-}
-
-QFrame#IdleMessage QLabel {
-    font-size: 160px;
-    qproperty-alignment: AlignCenter;
 }
 
 QFrame#IdleMessage QPushButton {
     border: none;
-    color: rgba(255, 27, 0, 200);
-    font-size: 150px;
+    color: rgba(255, 255, 255, 220);
+    font-size: 170px;
     text-align: center;
+    qproperty-alignment: AlignCenter;
 }
 
 QFrame#IdleMessage QPushButton:pressed {
-    background-color: rgba(255, 27, 0, 200);
-    color: #eeeeee;
+    background-color: rgba(255, 255, 255, 100);
 }
 
 /* Greeter Screen */
@@ -84,13 +78,8 @@ QFrame#GreeterMessage QLabel#message {
 /* Countdown Screen */
 
 QFrame#CountdownMessage {
-    background-color: #eeeeee;
-    border-style: outset;
-    border-width: 2px;
-    border-radius: 30px;
-    border-color: #eeeeee;
-    margin: 20px;
-    padding: 30px;
+    background-image: url(photobooth/gui/Qt5Gui/images/jungle-background.jpg);
+    background-repeat: no-repeat;
 }
 
 /* Pose Screen */
@@ -235,4 +224,10 @@ QComboBox QAbstractItemView {
 QComboBox QAbstractItemView::item {
     margin: 5px;
     min-height: 50px;
+}
+
+/** Round progress bar */
+
+QWidget#RoundProgressBar {
+    font-family: helvetica, sans-serif;
 }

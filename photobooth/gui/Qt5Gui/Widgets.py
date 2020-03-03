@@ -91,6 +91,8 @@ class RoundProgressBar(QtWidgets.QWidget):
 
         super().__init__()
 
+        self.setObjectName("RoundProgressBar")
+
         self._begin = begin
         self._end = end
         self._value = value
@@ -158,13 +160,15 @@ class RoundProgressBar(QtWidgets.QWidget):
     def _drawText(self, painter, inner_rect, inner_radius):
 
         text = "{}".format(math.ceil(self.value))
-
+        
         f = self.font()
         f.setPixelSize(inner_radius * 0.8 / len(text))
         painter.setFont(f)
         painter.setPen(self.palette().text().color())
 
-        painter.drawText(inner_rect, Qt.Qt.AlignCenter, text)
+        # Try to offset the fact that the rectangle is not centered
+        offset_rect = inner_rect.translated(0, (inner_rect.height() * 0.05))
+        painter.drawText(offset_rect, Qt.Qt.AlignCenter, text)
 
     def paintEvent(self, event):
 

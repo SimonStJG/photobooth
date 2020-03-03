@@ -79,19 +79,16 @@ class IdleMessage(QtWidgets.QFrame):
         super().__init__()
         self.setObjectName("IdleMessage")
 
-        self._message_label = _("Hit the")
-        self._message_button = _("Button!")
+        self._message_button = _("Touch Me")
 
         self.initFrame(trigger_action)
 
     def initFrame(self, trigger_action):
 
-        lbl = QtWidgets.QLabel(self._message_label)
         btn = QtWidgets.QPushButton(self._message_button)
         btn.clicked.connect(trigger_action)
 
         lay = QtWidgets.QVBoxLayout()
-        lay.addWidget(lbl)
         lay.addWidget(btn)
         self.setLayout(lay)
 
@@ -298,7 +295,7 @@ class CountdownMessage(QtWidgets.QFrame):
 
             pix = QtGui.QPixmap.fromImage(self.picture)
             pix = pix.scaled(
-                self.contentsRect().size(),
+                self.contentsRect().size() * 0.83,
                 QtCore.Qt.KeepAspectRatio,
                 QtCore.Qt.FastTransformation,
             )
@@ -346,7 +343,7 @@ class PostprocessMessage(Widgets.TransparentOverlay):
             return button
 
         buttons = [createButton(task) for task in tasks]
-        buttons.append(QtWidgets.QPushButton(_("Start over")))
+        buttons.append(QtWidgets.QPushButton(_("no")))
         buttons[-1].clicked.connect(idle_handle)
 
         button_lay = QtWidgets.QGridLayout()
@@ -355,7 +352,7 @@ class PostprocessMessage(Widgets.TransparentOverlay):
             button_lay.addWidget(button, *pos)
 
         layout = QtWidgets.QVBoxLayout()
-        layout.addWidget(QtWidgets.QLabel(_("Happy?")))
+        layout.addWidget(QtWidgets.QLabel(_("Go on print it")))
         layout.addLayout(button_lay)
         self.setLayout(layout)
 
